@@ -10,6 +10,6 @@ ignore:
   - premake4.lua
   - premake5.lua
   - CMakeLists.txt
-  - pics/
+  - update-koishipro/
 path: ./koishipro
 url: https://koishi.pro/ygopro/
