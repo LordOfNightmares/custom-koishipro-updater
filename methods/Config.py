@@ -12,13 +12,11 @@ class Config:
 
 
 class Temp:
-
     progress = None
 
     @classmethod
     def __attrs__(cls):
         return {k: v for k, v in vars(cls).items() if not k.startswith("__")}
-
 
 
 class YamlManager:
