@@ -1,0 +1,15 @@
+ignore:
+  - cmake/
+  - gframe/
+  - ikpmp3/
+  - ocgcore/
+  - premake/
+  - WindBot/Decks/
+  - WindBot/Dialogs/
+  - appveyor.yml
+  - premake4.lua
+  - premake5.lua
+  - CMakeLists.txt
+  - pics/
+path: ./koishipro
+url: https://koishi.pro/ygopro/
