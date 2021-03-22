@@ -89,16 +89,13 @@ class Crawler:
     def download_file(self, url, path):
         try:
             req = requests.get(url, stream=True)
-            if req.status_code == 200:
-                with open(path, 'wb') as output_file:
-                    output_file.write(req.content)
-                # for chunk in req.iter_content(chunk_size=4096):
-                #     if chunk:
-                #         output_file.write(chunk)
-            elif Temp.max_requests == 0:
-                logging.exception(f"Too many threads on Downloading")
-            else:
-                raise Exception(f"{url=},Status code:{req.status_code}")
+            with open(path, 'wb') as output_file:
+                output_file.write(req.content)
+            # for chunk in req.iter_content(chunk_size=4096):
+            #     if chunk:
+            #         output_file.write(chunk)
+            if Temp.max_requests == 0:
+                logging.exception(f"Too many threads on Downloading {req.status_code=}")
         except requests.ConnectionError:
             self.download_file(url, path)
             Temp.max_requests -= 1
@@ -141,7 +138,9 @@ class Crawler:
         except:
             raise
         if (dl := len(downloadable)) > 0:
-            downloading_concurrently(downloadable, tqdm(desc=main_url + "\t", total=dl))
+            progress = tqdm(desc=main_url + "\t", total=dl)
+            downloading_concurrently(downloadable, progress)
+            progress.close()
 
     def checking(self, url):
         try:
