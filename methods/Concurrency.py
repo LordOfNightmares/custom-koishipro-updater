@@ -21,11 +21,11 @@ def threaded(func=None, *, workers=10):
         # print(f"{kwargs=}")
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers, thread_name_prefix='T') as executor:
             if len(args) > 1 and kwargs:
-                futures = [executor.submit(func, *arg, *args[1:], kwargs) for arg in zip(args[0])]
+                futures = [executor.submit(func, *arg, *args[1:], **kwargs) for arg in zip(args[0])]
             elif len(args) > 1:
                 futures = [executor.submit(func, *arg, *args[1:]) for arg in zip(args[0])]
             elif kwargs:
-                futures = [executor.submit(func, *arg, kwargs) for arg in zip(args[0])]
+                futures = [executor.submit(func, *arg, **kwargs) for arg in zip(args[0])]
             else:
                 futures = [executor.submit(func, *arg) for arg in zip(args[0])]
         return [future.result() for future in futures if future.done()]
