@@ -91,8 +91,9 @@ class Crawler:
             os.remove(path)
         try:
             req = requests.get(url, stream=True)
-            with open(path, 'wb') as output_file:
-                output_file.write(req.content)
+            output_file = open(path, 'wb')
+            output_file.write(req.content)
+            output_file.close()
             if Temp.max_requests == 0:
                 logging.exception(f"Too many threads on Downloading {req.status_code=}")
         except requests.ConnectionError:
