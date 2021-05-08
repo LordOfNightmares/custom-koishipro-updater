@@ -1,14 +1,14 @@
 import concurrent.futures
-
 from functools import wraps, partial
 
 
 # import logging
-# import traceback
-# my_form = '%(asctime)s:\t%(threadName)s:\t%(message)s'
-# logging.basicConfig(format=my_form,
+#
+# logging.basicConfig(format='%(asctime)s:\t%(threadName)s:%(levelname)s:\t%(message)s',
 #                     level=logging.INFO,
 #                     datefmt="%H:%M:%S")
+#
+
 # workers = 10
 
 def threaded(func=None, *, workers=10):
@@ -33,25 +33,24 @@ def threaded(func=None, *, workers=10):
     return wrapper
 
 # -----------------------------------TEST-----------------------------------
-# @threaded(workers=2)
+#
+# @threaded(workers=60)
 # def test(*args, **kwargs):
-#     print(args)
+#     # print(kwargs)
 #     response = args[0]
 #     try:
-#         logging.info(f'{args=}\t{response=}')
+#         logging.info(f'{args=}\t{kwargs=}\t{response=}')
 #         # progress.update(1)
 #         return response
 #
 #     except:
-#         logging.exception(f'Exception:\n\nItem:{args}\n{traceback.format_exc()}')
+#         logging.exception(f'Exception: {args}')
 #         pass
 #
 #
 # if __name__ == '__main__':
 #     vals = range(10)
-#     # progress = tqdm(total=len(vals))
 #     kw = {'a': 1, "b": 2, "c": 3}
 #     wk = {'a1': True, "b2": False, "c3": None}
-#     test(vals)
-
-# print(f'{test(vals)=}')
+#
+#     print(f'{test(vals,kw,**wk)=}')

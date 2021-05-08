@@ -28,7 +28,7 @@ def downloading_concurrently(*args):
         path = '/'.join([config.data['path'], url['path']]).replace("/", "\\")
         status = ""
         try:
-            crawler.download_file(url['link'], path)
+            args[2].download_file(url['link'], path + ".tmp")
         except:
             status = "Failed:\t"
             logging.exception(f"Failed:\t{path}\n {traceback.format_exc()}")
@@ -43,15 +43,15 @@ def downloading_concurrently(*args):
 
 @threaded(workers=4)
 def concur_check(*args):
-    # logging.info(f'{crawler.urls_to_visit}')
-    if crawler.urls_to_visit:
-        url = crawler.urls_to_visit.pop(0)
+    # logging.info(f'{args[1].urls_to_visit}')
+    if args[1].urls_to_visit:
+        url = args[1].urls_to_visit.pop(0)
         try:
             # if len(self.hrefs) > 50:
             #     raise Exception("STOP")
-            crawler.crawl_call(url)
+            args[1].crawl_call(url)
             # logging.info(f'{args=}\t{url=}')
-            return concur_check(crawler.urls_to_visit)
+            return concur_check(args[1].urls_to_visit, args[1])
         except Exception:
             logging.exception(f'\nUrl:{url}\n')
 
@@ -87,13 +87,17 @@ class Crawler:
         return text
 
     def download_file(self, url, path):
+        if os.path.exists(path):
+            os.remove(path)
         try:
             req = requests.get(url, stream=True)
             with open(path, 'wb') as output_file:
                 output_file.write(req.content)
-            # for chunk in req.iter_content(chunk_size=4096):
-            #     if chunk:
-            #         output_file.write(chunk)
+            while int(req.headers["content-length"]) != int(os.path.getsize(path)):
+                req = requests.get(url, stream=True)
+                with open(path, 'wb') as output_file:
+                    output_file.write(req.content)
+
             if Temp.max_requests == 0:
                 logging.exception(f"Too many threads on Downloading {req.status_code=}")
         except requests.ConnectionError:
@@ -101,6 +105,7 @@ class Crawler:
             Temp.max_requests -= 1
         except Exception:
             raise
+        os.renames(path, path[:-4])
 
     def get_linked_urls(self, url, html):
         soup = BeautifulSoup(html, 'html.parser')
@@ -134,12 +139,11 @@ class Crawler:
                      not os.path.exists('/'.join([config.data['path'], url['path']]).replace("/", "\\"))]
             downloadable = diff_removal(downloadable, self.cache, 'path', 'time')
             downloadable = diff_merge(downloadable, exist, 'path', 'time')
-
-        except:
+        except Exception:
             raise
         if (dl := len(downloadable)) > 0:
             progress = tqdm(desc=main_url + "\t", total=dl)
-            downloading_concurrently(downloadable, progress)
+            downloading_concurrently(downloadable, progress, crawler)
             progress.close()
 
     def checking(self, url):
@@ -174,7 +178,7 @@ class Crawler:
             output_file.write("#Files downloaded \n")
         if context == "Checking":
             logging.info("Checking")
-            concur_check(self.urls_to_visit)
+            concur_check(self.urls_to_visit, crawler)
         if context == "Downloading":
             logging.info("Downloading")
             self.urls_to_visit = [config.data['url']]
