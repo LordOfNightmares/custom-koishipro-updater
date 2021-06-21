@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-import time
+import shutil
 import traceback
 from datetime import datetime
 from urllib.parse import urljoin, unquote
@@ -27,13 +27,11 @@ def downloading_concurrently(*args):
     url = args[0]
     try:
         path = '/'.join([config.data['path'], url['path']]).replace("/", "\\")
+        temp_path = path + ".tmp"
         status = ""
         try:
-            args[2].download_file(url['link'], path + ".tmp")
-            os.renames(path + ".tmp", path.split('.tmp')[0])
-        except PermissionError:
-            time.sleep(0.5)
-            os.renames(path + ".tmp", path.split('.tmp')[0])
+            args[2].download_file(url['link'], temp_path)
+            shutil.move(temp_path, path)
         except:
             status = "Failed:\t"
             logging.exception(f"Failed:\t{path}\n {traceback.format_exc()}")
@@ -44,7 +42,6 @@ def downloading_concurrently(*args):
         return url
     except:
         logging.exception(f'\nItem:{args}\n')
-
 
 
 @threaded(workers=4)
@@ -107,7 +104,6 @@ class Crawler:
             Temp.max_requests -= 1
         except Exception:
             raise
-
 
     def get_linked_urls(self, url, html):
         soup = BeautifulSoup(html, 'html.parser')
